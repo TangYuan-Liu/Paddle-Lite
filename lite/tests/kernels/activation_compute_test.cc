@@ -1044,7 +1044,6 @@ TEST(Activation_hard_sigmoid_fp32, precision) {
                    abs_error);
   }
 }
-#endif
 
 TEST(Activation_hard_sigmoid_fp32, performance) {
   Place place;
@@ -1079,7 +1078,6 @@ TEST(Activation_hard_sigmoid_fp32, performance) {
                               abs_error);
   }
 }
-#endif
 
 #if defined(LITE_WITH_ARM) && defined(ENABLE_ARM_FP16)
 TEST(Activation_relu_fp16, precision) {

@@ -81,9 +81,7 @@ int ActConverter(void* ctx, OpLite* op, KernelBase* kernel) {
   } else if (op_type == "tanh") {
     activation_operation = converter->AddOperation(NNADAPTER_TANH);
   } else if (op_type == "hard_sigmoid") {
-    activation_operation = converter->AddOperation(NNADAPTER_HARDSIGMOID);
-  } else if (op_type == "hard_swish") {
-    activation_operation = converter->AddOperation(NNADAPTER_HARDSWISH;
+    activation_operation = converter->AddOperation(NNADAPTER_HARD_SIGMOID);
   } else {
     LOG(WARNING) << "Unsupported activation type: " << op_type;
     return FAILED;
@@ -110,9 +108,6 @@ REGISTER_SUBGRAPH_BRIDGE(relu6,
 REGISTER_SUBGRAPH_BRIDGE(tanh,
                          kNNAdapter,
                          paddle::lite::subgraph::nnadapter::ActConverter);
-REGISTER_SUBGRAPH_BRIDGE(hardsigmoid,
-                         kNNAdapter,
-                         paddle::lite::subgraph::nnadapter::ActConverter);
-REGISTER_SUBGRAPH_BRIDGE(hardswish,
+REGISTER_SUBGRAPH_BRIDGE(hard_sigmoid,
                          kNNAdapter,
                          paddle::lite::subgraph::nnadapter::ActConverter);
