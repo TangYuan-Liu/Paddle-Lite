@@ -80,6 +80,49 @@ int ActConverter(void* ctx, OpLite* op, KernelBase* kernel) {
     activation_operation = converter->AddOperation(NNADAPTER_RELU6);
   } else if (op_type == "tanh") {
     activation_operation = converter->AddOperation(NNADAPTER_TANH);
+  } else if (op_type == "hard_swish") {
+    // Hard-Swish(x) = x * RELU6(x+3) / 6
+    float shift_factor = 3.0f;
+    float div_factor = 6.0f;
+    auto fuse_code_operand =
+      converter->AddInt32ConstantOperand(NNADAPTER_FUSED_NONE);
+    // x+3
+    NNAdapterOperation* add_operation = nullptr;
+    add_operation = converter->AddOperation(NNADAPTER_ADD);
+    NNAdapterOperand* shift_operand = nullptr;
+    NNAdapterOperand* shift_out = nullptr;
+    shift_operand = converter->AddFloat32ConstantOperand(&shift_factor, x_dims, false);
+    shift_out = converter->AddFloat32VariableOperand(x_dims, "Shift");
+    std::vector<NNAdapterOperand*> shift_out_operands = {shift_out};
+    std::vector<NNAdapterOperand*> shift_operands = {input_operand, shift_operand, fuse_code_operand};
+    converter->SetOperation(add_operation, &shift_operands, &shift_out_operands);
+
+    // relu(x+3)
+    NNAdapterOperation* relu_operation = nullptr;
+    relu_operation = converter->AddOperation(NNADAPTER_RELU6);
+    NNAdapterOperand* relu_out = nullptr;
+    relu_out = converter->AddFloat32VariableOperand(x_dims, "Relu6");
+    std::vector<NNAdapterOperand*> relu_out_operands = {relu_out};
+    converter->SetOperation(relu_operation, &shift_out_operands, &relu_out_operands);
+
+    // relu(x+3) * x
+    NNAdapterOperation* mul_operation = nullptr;
+    mul_operation = converter->AddOperation(NNADAPTER_MUL);
+    std::vector<NNAdapterOperand*> mul_operands = {input_operand, shift_out, fuse_code_operand};
+    NNAdapterOperand* mul_out = nullptr;
+    mul_out = converter->AddFloat32VariableOperand(x_dims, "Mul");
+    std::vector<NNAdapterOperand*> mul_out_operands = {mul_out};
+    converter->SetOperation(mul_operation, &mul_operands, &mul_out_operands);
+
+    // relu(x+3) * x / 6
+    NNAdapterOperation* div_operation = nullptr;
+    div_operation = converter->AddOperation(NNADAPTER_DIV);
+    NNAdapterOperand* div_operand = nullptr;
+    div_operand = converter->AddFloat32ConstantOperand(&div_factor, x_dims, false);
+    std::vector<NNAdapterOperand*> div_operands = {mul_out, div_operand, fuse_code_operand};
+    converter->SetOperation(div_operation, &div_operands, &output_operands);
+
+    return REBUILD_WHEN_SHAPE_CHANGED;
   } else {
     LOG(WARNING) << "Unsupported activation type: " << op_type;
     return FAILED;
