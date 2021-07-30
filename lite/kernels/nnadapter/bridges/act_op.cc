@@ -45,6 +45,21 @@ int ActConverter(void* ctx, OpLite* op, KernelBase* kernel) {
       has_out_scale ? op_info->GetOutputScale(out_scale_name, true)[0] : 0.f;
   auto out = scope->FindMutableTensor(out_name);
   auto out_dims = out->dims();
+  float offset = 3.0f;
+  float threshold = 6.0f;
+  float scale = 6.0f;
+
+  if (op_info->HasAttr("offset")) {
+    offset = op_info->GetAttr<float>("offset");
+  }
+
+  if (op_info->HasAttr("threshold")) {
+    scale = op_info->GetAttr<float>("threshold");
+  }
+
+  if (op_info->HasAttr("scale")) {
+    scale = op_info->GetAttr<float>("scale");
+  }
 
   // Input operand
   NNAdapterOperand* input_operand = nullptr;
@@ -68,6 +83,24 @@ int ActConverter(void* ctx, OpLite* op, KernelBase* kernel) {
     output_operand = converter->AddFloat32VariableOperand(out_dims, out_name);
   }
 
+  // offset operand
+  NNAdapterOperand* offset_operand = nullptr;
+  if (op_info->HasAttr("offset")) {
+    offset_operand = converter->AddFloat32ConstantOperand(offset);
+  }
+
+  // threshold operand
+  NNAdapterOperand* threshold_operand = nullptr;
+  if (op_info->HasAttr("scale")) {
+    threshold_operand = converter->AddFloat32ConstantOperand(threshold);
+  }
+
+  // scale operand
+  NNAdapterOperand* scale_operand = nullptr;
+  if (op_info->HasAttr("scale")) {
+    scale_operand = converter->AddFloat32ConstantOperand(scale);
+  }
+
   // Activation operation
   std::vector<NNAdapterOperand*> input_operands = {input_operand};
   std::vector<NNAdapterOperand*> output_operands = {output_operand};
@@ -81,48 +114,10 @@ int ActConverter(void* ctx, OpLite* op, KernelBase* kernel) {
   } else if (op_type == "tanh") {
     activation_operation = converter->AddOperation(NNADAPTER_TANH);
   } else if (op_type == "hard_swish") {
-    // Hard-Swish(x) = x * RELU6(x+3) / 6
-    float shift_factor = 3.0f;
-    float div_factor = 6.0f;
-    auto fuse_code_operand =
-      converter->AddInt32ConstantOperand(NNADAPTER_FUSED_NONE);
-    // x+3
-    NNAdapterOperation* add_operation = nullptr;
-    add_operation = converter->AddOperation(NNADAPTER_ADD);
-    NNAdapterOperand* shift_operand = nullptr;
-    NNAdapterOperand* shift_out = nullptr;
-    shift_operand = converter->AddFloat32ConstantOperand(&shift_factor, x_dims, false);
-    shift_out = converter->AddFloat32VariableOperand(x_dims, "Shift");
-    std::vector<NNAdapterOperand*> shift_out_operands = {shift_out};
-    std::vector<NNAdapterOperand*> shift_operands = {input_operand, shift_operand, fuse_code_operand};
-    converter->SetOperation(add_operation, &shift_operands, &shift_out_operands);
-
-    // relu(x+3)
-    NNAdapterOperation* relu_operation = nullptr;
-    relu_operation = converter->AddOperation(NNADAPTER_RELU6);
-    NNAdapterOperand* relu_out = nullptr;
-    relu_out = converter->AddFloat32VariableOperand(x_dims, "Relu6");
-    std::vector<NNAdapterOperand*> relu_out_operands = {relu_out};
-    converter->SetOperation(relu_operation, &shift_out_operands, &relu_out_operands);
-
-    // relu(x+3) * x
-    NNAdapterOperation* mul_operation = nullptr;
-    mul_operation = converter->AddOperation(NNADAPTER_MUL);
-    std::vector<NNAdapterOperand*> mul_operands = {input_operand, shift_out, fuse_code_operand};
-    NNAdapterOperand* mul_out = nullptr;
-    mul_out = converter->AddFloat32VariableOperand(x_dims, "Mul");
-    std::vector<NNAdapterOperand*> mul_out_operands = {mul_out};
-    converter->SetOperation(mul_operation, &mul_operands, &mul_out_operands);
-
-    // relu(x+3) * x / 6
-    NNAdapterOperation* div_operation = nullptr;
-    div_operation = converter->AddOperation(NNADAPTER_DIV);
-    NNAdapterOperand* div_operand = nullptr;
-    div_operand = converter->AddFloat32ConstantOperand(&div_factor, x_dims, false);
-    std::vector<NNAdapterOperand*> div_operands = {mul_out, div_operand, fuse_code_operand};
-    converter->SetOperation(div_operation, &div_operands, &output_operands);
-
-    return REBUILD_WHEN_SHAPE_CHANGED;
+    activation_operation = converter->AddOperation(NNADAPTER_HARD_SWISH);
+    input_operands.push_back(offset_operand);
+    input_operands.push_back(threshold_operand);
+    input_operands.push_back(scale_operand);
   } else {
     LOG(WARNING) << "Unsupported activation type: " << op_type;
     return FAILED;
@@ -149,3 +144,7 @@ REGISTER_SUBGRAPH_BRIDGE(relu6,
 REGISTER_SUBGRAPH_BRIDGE(tanh,
                          kNNAdapter,
                          paddle::lite::subgraph::nnadapter::ActConverter);
+REGISTER_SUBGRAPH_BRIDGE(hard_swish,
+                         kNNAdapter,
+                         paddle::lite::subgraph::nnadapter::ActConverter);
+
