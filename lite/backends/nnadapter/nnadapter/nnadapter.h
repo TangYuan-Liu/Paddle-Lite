@@ -163,6 +163,45 @@ typedef enum {
    *
    * Available since version 1.
    */
+
+  /**
+   * Applies adaptive 2-D average pooling across the input according to input and
+   * output size.
+   *
+   * Inputs:
+   * * 0: input, A NNADAPTER_TENSOR_FLOAT32,
+   * NNADAPTER_TENSOR_QUANT_INT8_SYMM_PER_LAYER or
+   * NNADAPTER_TENSOR_QUANT_INT8_SYMM_PER_LAYER 4-D tensor
+   * with shape [N, C_in, H_in, W_in].
+   * * 1: output_shape, A NNADAPTER_TENSOR_INT32 or
+   * NNADAPTER_TENSOR_INT64 tensor, with shape [2], with value [H_out, H_out].
+   *
+   * Outputs:
+   * * 0: output, A tensor with the same shape and type as input.
+   *
+   * Available since version 1.
+   */
+  NNADAPTER_ADAPTIVE_AVERAGE_POOL_2D,
+
+  /**
+   * Applies adaptive 2-D max pooling across the input according to input and
+   * output size.
+   *
+   * Inputs:
+   * * 0: input, A NNADAPTER_TENSOR_FLOAT32,
+   * NNADAPTER_TENSOR_QUANT_INT8_SYMM_PER_LAYER or
+   * NNADAPTER_TENSOR_QUANT_INT8_SYMM_PER_LAYER 4-D tensor
+   * with shape [N, C_in, H_in, W_in].
+   * * 1: output_shape, A NNADAPTER_TENSOR_INT32 or
+   * NNADAPTER_TENSOR_INT64 tensor, with shape [2], with value [H_out, H_out].
+   *
+   * Outputs:
+   * * 0: output, A tensor with the same shape and type as input.
+   *
+   * Available since version 1.
+   */
+  NNADAPTER_ADAPTIVE_MAX_POOL_2D,
+
   NNADAPTER_ADD,
 
   /**
@@ -1140,25 +1179,6 @@ typedef enum {
    * Available since version 1.
    */
   NNADAPTER_UNSQUEEZE,
-
-  /**
-   * Applies adaptive 2-D max pooling across the input according to input and
-   * output size.
-   *
-   * Inputs:
-   * * 0: input, A NNADAPTER_TENSOR_FLOAT32,
-   * NNADAPTER_TENSOR_QUANT_INT8_SYMM_PER_LAYER or
-   * NNADAPTER_TENSOR_QUANT_INT8_SYMM_PER_LAYER 4-D tensor
-   * with shape [N, C_in, H_in, W_in].
-   * * 1: output_shape, A NNADAPTER_TENSOR_INT32 or
-   * NNADAPTER_TENSOR_INT64 tensor, with shape [2], with value [H_out, H_out].
-   *
-   * Outputs:
-   * * 0: output, A tensor with the same shape and type as input.
-   *
-   * Available since version 1.
-   */
-  NNADAPTER_ADAPTIVE_AVERAGE_POOL_2D,
 } NNAdapterOperationCode;
 
 /**

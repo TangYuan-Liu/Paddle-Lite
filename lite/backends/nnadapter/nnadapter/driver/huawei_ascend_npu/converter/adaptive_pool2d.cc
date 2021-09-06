@@ -19,7 +19,7 @@
 namespace nnadapter {
 namespace huawei_ascend_npu {
 
-int Program::ConvertAdaptiveAvgPool2D(hal::Operation* operation) {
+int Program::ConvertAdaptivePool2D(hal::Operation* operation) {
   auto& input_operands = operation->input_operands;
   auto& output_operands = operation->output_operands;
   auto input_count = input_operands.size();
@@ -45,11 +45,20 @@ int Program::ConvertAdaptiveAvgPool2D(hal::Operation* operation) {
     input_operator = ConvertOperand(input_operand);
   }
   auto pool2d_name = GetOperatorName(output_operand);
-  auto pool2d_op = std::make_shared<ge::op::AdaptiveAvgPool2d>(pool2d_name);
-  pool2d_op->set_attr_output_size(
-      ge::Operator::OpListInt({kernel_height, kernel_width}));
-  SET_INPUT(pool2d_op, x, input_operator);
-  MAP_OUTPUT(pool2d_op, y, output_operand);
+  if (operation->type == NNADAPTER_ADAPTIVE_MAX_POOL_2D) {
+    auto pool2d_op = std::make_shared<ge::op::AdaptiveMaxPool2d>(pool2d_name);
+    pool2d_op->set_attr_output_size(
+        ge::Operator::OpListInt({kernel_height, kernel_width}));
+    SET_INPUT(pool2d_op, x, input_operator);
+    MAP_OUTPUT(pool2d_op, y, output_operand);
+  } else {
+    auto pool2d_op = std::make_shared<ge::op::AdaptiveAvgPool2d>(pool2d_name);
+    pool2d_op->set_attr_output_size(
+        ge::Operator::OpListInt({kernel_height, kernel_width}));
+    SET_INPUT(pool2d_op, x, input_operator);
+    MAP_OUTPUT(pool2d_op, y, output_operand);
+  }
+
   return NNADAPTER_NO_ERROR;
 }
 
