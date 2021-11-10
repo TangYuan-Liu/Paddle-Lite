@@ -39,7 +39,6 @@ REGISTER_MIR_PASS(lite_scale_activation_fuse_pass,
     .ExcludeTargets({TARGET(kNPU),
                      TARGET(kXPU),
                      TARGET(kRKNPU),
-                     TARGET(kAPU),
                      TARGET(kHuaweiAscendNPU),
                      TARGET(kNNAdapter)})
     .BindKernel("scale");
