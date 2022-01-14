@@ -14,10 +14,6 @@
 
 set(NNADAPTER_DEVICES CACHE INTERNAL "")
 
-if(NNADAPTER_WITH_HUAWEI_KIRIN_NPU)
-  add_subdirectory(huawei_kirin_npu)
-endif()
-
 if(NNADAPTER_WITH_HUAWEI_ASCEND_NPU)
   add_subdirectory(huawei_ascend_npu)
 endif()
