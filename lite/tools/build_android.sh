@@ -41,7 +41,6 @@ WITH_MEDIATEK_APU=OFF
 MEDIATEK_APU_SDK_ROOT="$(pwd)/apu_ddk" # Download APU SDK from https://paddlelite-demo.bj.bcebos.com/devices/mediatek/apu_ddk.tar.gz
 # options of compiling NNAdapter lib
 WITH_NNADAPTER=OFF
-NNADAPTER_WITH_HUAWEI_KIRIN_NPU=OFF
 NNADAPTER_HUAWEI_KIRIN_NPU_SDK_ROOT="$(pwd)/hiai_ddk_lib_330"
 NNADAPTER_WITH_AMLOGIC_NPU=OFF
 NNADAPTER_AMLOGIC_NPU_SDK_ROOT="$(pwd)/amlnpu_ddk"
@@ -245,8 +244,6 @@ function make_tiny_publish_so {
       -DLITE_WITH_APU=$WITH_MEDIATEK_APU \
       -DAPU_DDK_ROOT=$MEDIATEK_APU_SDK_ROOT \
       -DLITE_WITH_NNADAPTER=$WITH_NNADAPTER \
-      -DNNADAPTER_WITH_HUAWEI_KIRIN_NPU=$NNADAPTER_WITH_HUAWEI_KIRIN_NPU \
-      -DNNADAPTER_HUAWEI_KIRIN_NPU_SDK_ROOT=$NNADAPTER_HUAWEI_KIRIN_NPU_SDK_ROOT \
       -DNNADAPTER_WITH_AMLOGIC_NPU=$NNADAPTER_WITH_AMLOGIC_NPU \
       -DNNADAPTER_AMLOGIC_NPU_SDK_ROOT=$NNADAPTER_AMLOGIC_NPU_SDK_ROOT \
       -DNNADAPTER_WITH_MEDIATEK_APU=$NNADAPTER_WITH_MEDIATEK_APU \
@@ -330,8 +327,6 @@ function make_full_publish_so {
       -DLITE_WITH_APU=$WITH_MEDIATEK_APU \
       -DAPU_DDK_ROOT=$MEDIATEK_APU_SDK_ROOT \
       -DLITE_WITH_NNADAPTER=$WITH_NNADAPTER \
-      -DNNADAPTER_WITH_HUAWEI_KIRIN_NPU=$NNADAPTER_WITH_HUAWEI_KIRIN_NPU \
-      -DNNADAPTER_HUAWEI_KIRIN_NPU_SDK_ROOT=$NNADAPTER_HUAWEI_KIRIN_NPU_SDK_ROOT \
       -DNNADAPTER_WITH_AMLOGIC_NPU=$NNADAPTER_WITH_AMLOGIC_NPU \
       -DNNADAPTER_AMLOGIC_NPU_SDK_ROOT=$NNADAPTER_AMLOGIC_NPU_SDK_ROOT \
       -DNNADAPTER_WITH_MEDIATEK_APU=$NNADAPTER_WITH_MEDIATEK_APU \
@@ -533,14 +528,6 @@ function main {
             # compiling lib which can operate on nnadapter.
             --with_nnadapter=*)
                 WITH_NNADAPTER="${i#*=}"
-                shift
-                ;;
-            --nnadapter_with_huawei_kirin_npu=*)
-                NNADAPTER_WITH_HUAWEI_KIRIN_NPU="${i#*=}"
-                shift
-                ;;
-            --nnadapter_huawei_kirin_npu_sdk_root=*)
-                NNADAPTER_HUAWEI_KIRIN_NPU_SDK_ROOT="${i#*=}"
                 shift
                 ;;
             --nnadapter_with_amlogic_npu=*)
