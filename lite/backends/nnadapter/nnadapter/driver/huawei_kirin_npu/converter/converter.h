@@ -20,6 +20,7 @@
 #include <vector>
 #include "driver/huawei_kirin_npu/utility.h"
 #include "graph/op/all_ops.h"
+#include "graph/compatible/all_ops.h"
 #include "utility/debug.h"
 #include "utility/string.h"
 

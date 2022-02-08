@@ -193,6 +193,13 @@ TEST(tile, precision) {
   TestTile<float>(place, alias, abs_error, {1, 1, 1}, {2, 3, 4});
   TestTile<float>(place, alias, abs_error, {2, 1, 4}, {2, 3, 4}, true);
   return;
+#elif defined(NNADAPTER_WITH_HUAWEI_KIRIN_NPU)
+  abs_error = 1e-2;
+  alias = "def";
+  TestTile<float>(place, alias, abs_error);
+  TestTile<float>(place, alias, abs_error, {1, 1, 1}, {2, 3, 4});
+  TestTile<float>(place, alias, abs_error, {2, 1, 4}, {2, 3, 4}, true);
+  return;
 #else
   return;
 #endif

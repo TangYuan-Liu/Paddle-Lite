@@ -272,6 +272,10 @@ TEST(fill_constant, precision) {
   abs_error = 1e-2;
   TestFillConstantShape(place, abs_error);
   return;
+#elif defined(NNADAPTER_WITH_HUAWEI_KIRIN_NPU)
+  abs_error = 1e-5;
+  TestFillConstantShape(place, abs_error);
+  return;
 #else
   return;
 #endif

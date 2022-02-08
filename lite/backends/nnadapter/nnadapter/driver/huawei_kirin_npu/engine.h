@@ -21,6 +21,7 @@
 #include "driver/huawei_kirin_npu/converter/converter.h"
 #include "driver/huawei_kirin_npu/utility.h"
 #include "graph/op/all_ops.h"
+#include "graph/compatible/all_ops.h"
 #include "utility/string.h"
 
 namespace nnadapter {
